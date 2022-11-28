@@ -1,4 +1,4 @@
 #!/bin/bash
 
-make
-LD_PRELOAD=./basspatch.so $1
+./build.sh
+./basspatch $1

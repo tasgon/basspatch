@@ -11,15 +11,16 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-void *test_thing() {
+void *main_loop() {
     sleep(8);
     int (*setconf)(int, int) = dlsym(RTLD_DEFAULT, "BASS_SetConfig");
     int (*getconf)(int) = dlsym(RTLD_DEFAULT, "BASS_GetConfig");
     printf("Testing bass patch, loc: %p\n", setconf);
-    if (setconf == NULL) return;
+    if (setconf == NULL) return NULL;
     int (*bass_init)(int, int, int, void *, const void *) = dlsym(RTLD_DEFAULT, "BASS_Init");
     int (*getdevice)(void) = dlsym(RTLD_DEFAULT, "BASS_GetDevice");
     int (*geterror)(void) = dlsym(RTLD_DEFAULT, "BASS_ErrorGetCode");
+    printf("BASS patch loaded, pid: %i\n", getpid());
 
     int period = 2;
     int buffer = 4;
@@ -45,9 +46,7 @@ void *test_thing() {
     }
 }
 
-void __attribute__((constructor)) test_patch() {
-    fprintf(stderr, "BASS patch loaded, pid: %i\n", getpid());
-
+void __attribute__((constructor)) entry_point() {
     pthread_t t_id;
-    pthread_create(&t_id, NULL, test_thing, NULL);
+    pthread_create(&t_id, NULL, main_loop, NULL);
 }
